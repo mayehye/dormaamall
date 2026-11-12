@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-xl mx-auto px-4 py-8 space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-black text-gray-900 tracking-tight">Edit Profile & DP</h1>
+            <p class="text-xs text-gray-500">Manage your Dormaa Mall seller identity and contact info.</p>
+        </div>
+        <a href="{% url 'listings:home' %}" class="text-xs font-semibold text-green-700 bg-green-50 px-3 py-1.5 rounded-xl hover:bg-green-100 transition">
+            ← Back to Home
+        </a>
+    </div>
+
+    <!-- Edit Form Card -->
+    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sm:p-8">
+        
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Current DP & Preview Section -->
+            <div class="flex items-center gap-4 pb-6 border-b border-gray-100">
+                <div class="relative">
+                    {% if user.profile.avatar %}
+                        <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="w-16 h-16 rounded-full object-cover shadow-md border-2 border-green-600/30">
+                    {% else %}
+                        <div class="w-16 h-16 rounded-full bg-green-700 text-white flex items-center justify-center font-bold text-lg uppercase shadow-md">
+                            {{ user.username|slice:":2" }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="space-y-1">
+                    <h3 class="font-bold text-gray-900 text-sm">Profile Picture (DP)</h3>
+                    <p class="text-xs text-gray-500">Upload a clear photo or logo so buyers in Dormaa trust your store.</p>
+                </div>
+            </div>
+
+            <!-- Avatar Upload Field -->
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">Change Avatar</label>
+                {{ p_form.avatar }}
+                {% if p_form.avatar.errors %}
+                    <p class="text-xs text-red-600">{{ p_form.avatar.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Personal Info Fields -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">First Name</label>
+                    {{ u_form.first_name }}
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">Last Name</label>
+                    {{ u_form.last_name }}
+                </div>
+            </div>
+
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">Email Address</label>
+                {{ u_form.email }}
+            </div>
+
+            <!-- Phone Number Field -->
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">Phone Number (MTN / Telecel)</label>
+                {{ p_form.phone_number }}
+                <p class="text-[11px] text-gray-400">Buyers will use this number to contact you via phone or WhatsApp.</p>
+                {% if p_form.phone_number.errors %}
+                    <p class="text-xs text-red-600">{{ p_form.phone_number.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Submit Button -->
+            <div class="pt-4">
+                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 px-6 rounded-2xl shadow-md transition text-sm">
+                    Save Changes
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+{% endblock %}

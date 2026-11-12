@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-2 sm:px-4 pb-12">
+
+    <!-- Back Link -->
+    <div class="mb-4">
+        <a href="{% url 'listings:home' %}" class="inline-flex items-center gap-1.5 text-green-700 hover:text-green-800 text-xs sm:text-sm font-semibold">
+            <span>←</span>
+            <span>Back to Home</span>
+        </a>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-8 space-y-6">
+        <div class="border-b border-gray-100 pb-4">
+            <h1 class="text-xl sm:text-2xl font-extrabold text-gray-900">Post a Free Ad</h1>
+            <p class="text-xs sm:text-sm text-gray-500 mt-1">Reach buyers across Dormaa Ahenkro fast.</p>
+        </div>
+
+        <!-- Display Form Errors if Any -->
+        {% if form.errors %}
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-xs sm:text-sm">
+                <p class="font-bold">Please fix the errors below:</p>
+                {{ form.errors }}
+            </div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-5">
+            {% csrf_token %}
+
+            <!-- Render Form Fields Cleanly -->
+            {% for field in form %}
+                <div class="space-y-1.5">
+                    <label for="{{ field.id_for_label }}" class="block text-xs sm:text-sm font-bold text-gray-700">
+                        {{ field.label }}
+                        {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                    </label>
+                    
+                    {{ field }}
+
+                    {% if field.help_text %}
+                        <p class="text-[11px] text-gray-400">{{ field.help_text }}</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <!-- Multiple Image Upload Section -->
+            <div class="space-y-2 pt-2">
+                <label class="block text-xs sm:text-sm font-bold text-gray-700">
+                    Upload Photos <span class="text-red-500">*</span>
+                </label>
+                <div class="border-2 border-dashed border-gray-300 hover:border-green-500 rounded-2xl p-6 text-center transition bg-gray-50/50">
+                    <input type="file" name="images" id="image-upload" multiple accept="image/*" required
+                           class="block w-full text-xs sm:text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-green-700 file:text-white hover:file:bg-green-800 cursor-pointer">
+                    <p class="text-[11px] text-gray-400 mt-2">Select up to 5 clear photos. The first photo will be your main cover image.</p>
+                </div>
+
+                <!-- Live Image Preview Container -->
+                <div id="image-preview" class="grid grid-cols-3 sm:grid-cols-5 gap-2 pt-2"></div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="pt-4">
+                <button type="submit" class="w-full bg-green-700 hover:bg-green-800 text-white font-extrabold py-3.5 px-6 rounded-xl shadow-md transition text-sm sm:text-base">
+                    Publish Ad Now
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<!-- Styling for Django Default Form Inputs + Image Preview Script -->
+<style>
+    form input[type="text"],
+    form input[type="number"],
+    form input[type="tel"],
+    form select,
+    form textarea {
+        width: 100%;
+        padding: 0.65rem 0.85rem;
+        font-size: 0.875rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        background-color: #f9fafb;
+        color: #111827;
+        outline: none;
+        transition: all 0.2s;
+    }
+    form input:focus,
+    form select:focus,
+    form textarea:focus {
+        background-color: #ffffff;
+        border-color: #15803d;
+        box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.1);
+    }
+    form input[type="checkbox"] {
+        width: 1.1rem;
+        height: 1.1rem;
+        accent-color: #15803d;
+        border-radius: 0.25rem;
+    }
+</style>
+
+<script>
+    document.getElementById('image-upload').addEventListener('change', function(event) {
+        const previewContainer = document.getElementById('image-preview');
+        previewContainer.innerHTML = ''; // Clear previous previews
+        const files = event.target.files;
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            if (!file.type.startsWith('image/')) continue;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-gray-100';
+                div.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">`;
+                previewContainer.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+{% endblock %}

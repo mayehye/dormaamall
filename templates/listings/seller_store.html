@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 space-y-8">
+
+    <!-- Back Navigation -->
+    <div>
+        <a href="{% url 'listings:home' %}" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-green-700 hover:text-green-800 transition">
+            <span>←</span>
+            <span>Back to All Listings</span>
+        </a>
+    </div>
+
+    <!-- Seller Banner / Header Card -->
+    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6">
+        <!-- Seller Avatar / DP -->
+        <div class="shrink-0">
+            {% if profile_seller.profile.avatar %}
+                <img src="{{ profile_seller.profile.avatar.url }}" alt="{{ profile_seller.username }}" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover shadow-md border-4 border-green-600/20">
+            {% else %}
+                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-green-700 text-white flex items-center justify-center font-black text-3xl uppercase shadow-md">
+                    {{ profile_seller.username|slice:":2" }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Seller Info & Stats -->
+        <div class="flex-grow text-center sm:text-left space-y-2">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 justify-center sm:justify-start">
+                <h1 class="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+                    {{ profile_seller.get_full_name|default:profile_seller.username }}'s Store
+                </h1>
+                {% if profile_seller.profile.is_verified %}
+                    <span class="inline-flex items-center justify-center gap-1 text-blue-600 bg-blue-50 text-xs font-bold px-2.5 py-1 rounded-full w-fit mx-auto sm:mx-0">
+                        <svg class="w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.9 14.7L6 12.6l1.5-1.5 2.6 2.6 6.4-6.4 1.5 1.5-7.9 7.9z"/>
+                        </svg>
+                        <span>Verified Dormaa Seller</span>
+                    </span>
+                {% endif %}
+            </div>
+
+            <p class="text-xs sm:text-sm text-gray-500">
+                Member since {{ profile_seller.date_joined|date:"F Y" }} • <strong>{{ seller_ads|length }}</strong> active listing{{ seller_ads|length|pluralize }} in Dormaa Ahenkro
+            </p>
+
+            <!-- Quick WhatsApp Action if phone available -->
+            {% if profile_seller.profile.phone_number or seller_ads.first.phone_number %}
+                {% with store_phone=seller_ads.first.whatsapp_number|default:seller_ads.first.phone_number %}
+                    {% if store_phone %}
+                        <div class="pt-2">
+                            <a href="https://wa.me/233{{ store_phone|slice:'1:' }}?text=Hello%2C%20I%20am%20viewing%20your%20store%20on%20Dormaa%20Mall." target="_blank" rel="noopener noreferrer"
+                               class="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-sm transition">
+                                <span>💬</span>
+                                <span>Chat with Seller on WhatsApp</span>
+                            </a>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Seller's Listings Section -->
+    <div class="space-y-4">
+        <h2 class="text-lg sm:text-xl font-extrabold text-gray-900 tracking-tight">Active Listings by this Seller</h2>
+
+        {% if seller_ads %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {% for ad in seller_ads %}
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition flex flex-col">
+                        <!-- Ad Image -->
+                        <a href="{% url 'listings:detail' ad.id %}" class="relative aspect-[4/3] bg-gray-100 block overflow-hidden">
+                            {% with first_img=ad.images.first %}
+                                {% if first_img %}
+                                    <img src="{{ first_img.image.url }}" alt="{{ ad.title }}" class="w-full h-full object-cover hover:scale-105 transition duration-300">
+                                {% else %}
+                                    <div class="w-full h-full flex items-center justify-center text-gray-400 text-xs">No image</div>
+                                {% endif %}
+                            {% endwith %}
+                            
+                            <!-- Condition badge -->
+                            {% if ad.condition %}
+                                <span class="absolute top-2.5 left-2.5 bg-black/70 backdrop-blur-sm text-white text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase">
+                                    {{ ad.get_condition_display }}
+                                </span>
+                            {% endif %}
+                        </a>
+
+                        <!-- Ad Details -->
+                        <div class="p-4 flex flex-col flex-grow justify-between space-y-3">
+                            <div class="space-y-1.5">
+                                <div class="flex items-center justify-between text-xs text-gray-400">
+                                    <span>{{ ad.category.name }}</span>
+                                    <span>📍 {{ ad.location.name|default:"Dormaa" }}</span>
+                                </div>
+                                <h3 class="font-bold text-gray-900 text-sm sm:text-base line-clamp-1">
+                                    <a href="{% url 'listings:detail' ad.id %}" class="hover:text-green-700 transition">{{ ad.title }}</a>
+                                </h3>
+                            </div>
+
+                            <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+                                <span class="text-base sm:text-lg font-black text-green-700">GHS {{ ad.price }}</span>
+                                <a href="{% url 'listings:detail' ad.id %}" class="text-xs font-bold bg-green-50 text-green-700 hover:bg-green-100 px-3 py-1.5 rounded-xl transition">
+                                    View Item →
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-white rounded-2xl p-12 text-center text-gray-500 border border-gray-100">
+                <p class="text-sm">This seller has no active listings right now.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% if ad.pk %}
+<a href="{% url 'listings:detail' ad.pk %}" class="group flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md border {% if ad.is_featured %}border-amber-400 ring-2 ring-amber-400/30{% else %}border-gray-100{% endif %} transition-all duration-300 h-full relative">
+    
+    <!-- Top: Product Image & Badges -->
+    <div class="relative aspect-[4/3] w-full bg-gray-100 overflow-hidden">
+        {% with primary_image=ad.images.first %}
+            {% if primary_image %}
+                <img src="{{ primary_image.image.url }}" alt="{{ ad.title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            {% else %}
+                <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs font-medium">
+                    No Image
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Featured Badge -->
+        {% if ad.is_featured %}
+            <span class="absolute top-2 left-2 bg-amber-400 text-gray-950 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm z-10">
+                ⭐ Featured
+            </span>
+        {% endif %}
+
+        <!-- Condition Badge -->
+        {% if ad.condition %}
+            <span class="absolute bottom-2 left-2 bg-black/65 backdrop-blur-sm text-white text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wide">
+                {{ ad.get_condition_display }}
+            </span>
+        {% endif %}
+    </div>
+
+    <!-- Bottom: Compact White Info Space -->
+    <div class="p-2.5 sm:p-3 flex flex-col justify-between flex-grow bg-white">
+        <div>
+            <!-- Title + User-Level Verified Blue Tick -->
+            <div class="flex items-center gap-1">
+                <h3 class="text-green-700 group-hover:text-green-800 font-bold text-xs sm:text-sm leading-snug line-clamp-1">
+                    {{ ad.title }}
+                </h3>
+                {% if ad.seller.profile.is_verified %}
+                    <svg class="w-3.5 h-3.5 text-blue-500 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-label="Verified Seller" title="Verified Seller">
+                        <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.9 14.7L6 12.6l1.5-1.5 2.6 2.6 6.4-6.4 1.5 1.5-7.9 7.9z"/>
+                    </svg>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Price & Location -->
+        <div class="mt-1.5 space-y-0.5">
+            <p class="text-gray-900 font-black text-xs sm:text-sm">
+                GHS {{ ad.price }}
+            </p>
+            <p class="text-gray-500 text-[11px] flex items-center gap-1 truncate">
+                <span>📍</span>
+                <span class="truncate">{{ ad.location.name|default:"Dormaa Ahenkro" }}</span>
+            </p>
+        </div>
+    </div>
+
+</a>
+{% endif %}

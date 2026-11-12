@@ -1,0 +1,7 @@
+{% if seller.profile.avatar %}
+    <img src="{{ seller.profile.avatar.url }}" alt="{{ seller.username }}" class="{{ css_classes|default:'w-10 h-10 rounded-full object-cover shadow-sm border border-gray-100' }}">
+{% else %}
+    <div class="{{ css_classes|default:'w-10 h-10 rounded-full bg-green-700 text-white flex items-center justify-center font-bold text-sm uppercase shadow-sm' }}">
+        {{ seller.username|slice:":2" }}
+    </div>
+{% endif %}

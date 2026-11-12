@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-md mx-auto px-3 py-6 sm:py-10">
+    <div class="bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden">
+        
+        <!-- Branded Top Banner -->
+        <div class="bg-gradient-to-r from-green-700 to-emerald-800 px-6 py-7 text-center text-white relative overflow-hidden">
+            <div class="relative z-10 space-y-1">
+                <span class="inline-block bg-white/15 backdrop-blur-sm text-green-50 text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-1">
+                    Free Seller & Buyer Account
+                </span>
+                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Join Dormaa Mall</h1>
+                <p class="text-green-100 text-xs sm:text-sm">Buy, sell, and connect locally in Dormaa Ahenkro</p>
+            </div>
+        </div>
+
+        <!-- Form Body -->
+        <div class="p-6 sm:p-8 space-y-5">
+
+            <!-- Clean Error Display -->
+            {% if form.errors %}
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-xs space-y-1">
+                    <p class="font-bold">Please check the following:</p>
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <p>• {{ error }}</p>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <p>• {{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Registration Form -->
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+
+                <!-- Username Field -->
+                <div class="space-y-1.5">
+                    <label for="{{ form.username.id_for_label }}" class="block text-xs font-bold text-gray-700">
+                        Username
+                    </label>
+                    <input type="text" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}" 
+                           value="{{ form.username.value|default:'' }}" required autofocus
+                           placeholder="e.g., kwame_dormaa"
+                           class="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-green-700 focus:ring-2 focus:ring-green-700/15 outline-none transition">
+                </div>
+
+                <!-- Password 1 Field -->
+                <div class="space-y-1.5">
+                    <div class="flex justify-between items-center">
+                        <label for="{{ form.password1.id_for_label }}" class="block text-xs font-bold text-gray-700">
+                            Password
+                        </label>
+                        <button type="button" onclick="togglePasswords()" id="toggle-pwd-btn" class="text-[11px] font-semibold text-green-700 hover:text-green-800">
+                            Show
+                        </button>
+                    </div>
+                    <input type="password" name="{{ form.password1.html_name }}" id="{{ form.password1.id_for_label }}" required
+                           placeholder="At least 8 characters"
+                           class="pwd-field w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-green-700 focus:ring-2 focus:ring-green-700/15 outline-none transition">
+                </div>
+
+                <!-- Password 2 Field -->
+                <div class="space-y-1.5">
+                    <label for="{{ form.password2.id_for_label }}" class="block text-xs font-bold text-gray-700">
+                        Confirm Password
+                    </label>
+                    <input type="password" name="{{ form.password2.html_name }}" id="{{ form.password2.id_for_label }}" required
+                           placeholder="Re-enter your password"
+                           class="pwd-field w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-green-700 focus:ring-2 focus:ring-green-700/15 outline-none transition">
+                    <p class="text-[11px] text-gray-400">Use at least 8 characters with letters and numbers.</p>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full bg-green-700 hover:bg-green-800 active:scale-[0.99] text-white font-extrabold py-3 px-4 rounded-xl shadow-md transition text-sm mt-2">
+                    Create Free Account
+                </button>
+            </form>
+
+            <!-- Footer Link -->
+            <div class="text-center pt-4 border-t border-gray-100">
+                <p class="text-xs text-gray-600">
+                    Already have an account? 
+                    <a href="{% url 'accounts:login' %}" class="text-green-700 hover:text-green-800 font-bold underline-offset-2 hover:underline">
+                        Log in here
+                    </a>
+                </p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Show/Hide Password Toggle Script -->
+<script>
+    function togglePasswords() {
+        const fields = document.querySelectorAll('.pwd-field');
+        const btn = document.getElementById('toggle-pwd-btn');
+        const isHidden = fields[0].type === 'password';
+
+        fields.forEach(field => {
+            field.type = isHidden ? 'text' : 'password';
+        });
+        btn.textContent = isHidden ? 'Hide' : 'Show';
+    }
+</script>
+{% endblock %}

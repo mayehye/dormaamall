@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+    
+    <!-- Advanced Filter Header -->
+    <section class="bg-gradient-to-r from-green-700 to-emerald-800 text-white rounded-3xl p-4 sm:p-8 shadow-lg max-w-4xl mx-auto w-full">
+        <div class="space-y-4">
+            <div class="text-center space-y-1">
+                <h1 class="text-2xl sm:text-3xl font-black tracking-tight drop-shadow-sm">Dormaa Mall</h1>
+                <p class="text-green-100 text-xs sm:text-sm">Buy and sell items locally in Dormaa Ahenkro with confidence.</p>
+            </div>
+            
+            <form id="filter-form" method="GET" action="{% url 'listings:home' %}" class="space-y-3">
+                <!-- Search Bar Row -->
+                <div class="relative w-full shadow-md rounded-2xl overflow-hidden">
+                    <input type="text" name="q" placeholder="Search phones, electronics, items..." value="{{ request.GET.q }}" 
+                           class="w-full py-3.5 pl-4 pr-12 text-gray-900 text-xs sm:text-sm bg-white focus:outline-none placeholder-gray-400 font-medium">
+                    <button type="submit" class="absolute right-0 top-0 bottom-0 px-4 bg-green-600 hover:bg-green-700 text-white font-bold text-sm transition flex items-center justify-center">
+                        🔍
+                    </button>
+                </div>
+
+                <!-- Hidden inputs to hold active filter values -->
+                <input type="hidden" name="category" id="input-category" value="{{ request.GET.category }}">
+                <input type="hidden" name="price" id="input-price" value="{{ request.GET.price }}">
+                <input type="hidden" name="location" id="input-location" value="{{ request.GET.location }}">
+                <input type="hidden" name="condition" id="input-condition" value="{{ request.GET.condition }}">
+                <input type="hidden" name="verified" id="input-verified" value="{{ request.GET.verified }}">
+
+                <!-- Filter Trigger Pills (Custom Modal Triggers) -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    
+                    <!-- 1. Category Pill -->
+                    <button type="button" onclick="openFilterModal('category')" 
+                            class="w-full flex items-center justify-between p-3 text-gray-800 text-xs sm:text-sm font-semibold rounded-xl bg-white hover:bg-green-50 border border-green-300/40 shadow-sm transition truncate">
+                        <span class="truncate" id="label-category">📁 {% if request.GET.category %}{{ request.GET.category|title }}{% else %}Categories{% endif %}</span>
+                        <span class="text-gray-400 text-xs ml-1">▼</span>
+                    </button>
+
+                    <!-- 2. Price Pill -->
+                    <button type="button" onclick="openFilterModal('price')" 
+                            class="w-full flex items-center justify-between p-3 text-gray-800 text-xs sm:text-sm font-semibold rounded-xl bg-white hover:bg-green-50 border border-green-300/40 shadow-sm transition truncate">
+                        <span class="truncate" id="label-price">💰 {% if request.GET.price == 'lowest' %}Lowest Price{% elif request.GET.price == 'highest' %}Highest Price{% else %}Price Sort{% endif %}</span>
+                        <span class="text-gray-400 text-xs ml-1">▼</span>
+                    </button>
+
+                    <!-- 3. Location Pill -->
+                    <button type="button" onclick="openFilterModal('location')" 
+                            class="w-full flex items-center justify-between p-3 text-gray-800 text-xs sm:text-sm font-semibold rounded-xl bg-white hover:bg-green-50 border border-green-300/40 shadow-sm transition truncate">
+                        <span class="truncate" id="label-location">📍 Locations</span>
+                        <span class="text-gray-400 text-xs ml-1">▼</span>
+                    </button>
+
+                    <!-- 4. Condition Pill -->
+                    <button type="button" onclick="openFilterModal('condition')" 
+                            class="w-full flex items-center justify-between p-3 text-gray-800 text-xs sm:text-sm font-semibold rounded-xl bg-white hover:bg-green-50 border border-green-300/40 shadow-sm transition truncate">
+                        <span class="truncate" id="label-condition">✨ Condition</span>
+                        <span class="text-gray-400 text-xs ml-1">▼</span>
+                    </button>
+
+                </div>
+
+                <!-- 5. One-Tap Verified Sellers Toggle Pill -->
+                <div class="flex items-center justify-center pt-1">
+                    <button type="button" onclick="toggleVerifiedFilter()" 
+                            class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition shadow-sm border {% if request.GET.verified == '1' %}bg-blue-600 text-white border-blue-400 ring-2 ring-white/40{% else %}bg-white/15 hover:bg-white/25 text-white border-white/25{% endif %}">
+                        <svg class="w-4 h-4 {% if request.GET.verified == '1' %}text-white{% else %}text-blue-300{% endif %}" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.9 14.7L6 12.6l1.5-1.5 2.6 2.6 6.4-6.4 1.5 1.5-7.9 7.9z"/>
+                        </svg>
+                        <span>Verified Sellers Only</span>
+                        {% if request.GET.verified == '1' %}
+                            <span class="ml-1 text-[10px] bg-white/20 px-1.5 py-0.5 rounded-full">ON</span>
+                        {% endif %}
+                    </button>
+                </div>
+            </form>
+
+            <!-- Active Filter Reset Bar -->
+            {% if request.GET.q or request.GET.category or request.GET.price or request.GET.location or request.GET.condition or request.GET.verified %}
+                <div class="flex items-center justify-between text-xs text-green-100 pt-2 border-t border-green-600/40">
+                    <span class="font-medium">✨ Active filters applied</span>
+                    <a href="{% url 'listings:home' %}" class="bg-white/10 hover:bg-white/20 text-white font-bold px-3 py-1 rounded-lg transition underline">Clear all filters ✕</a>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Listings Section -->
+    <section class="space-y-4">
+        {% if page_obj %}
+            <!-- Responsive Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                {% for ad in page_obj %}
+                    {% include 'listings/partials/ad_card.html' with ad=ad %}
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-between items-center pt-4 text-xs sm:text-sm font-semibold border-t border-gray-200 mt-6">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.price %}&price={{ request.GET.price }}{% endif %}{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.condition %}&condition={{ request.GET.condition }}{% endif %}{% if request.GET.verified %}&verified={{ request.GET.verified }}{% endif %}" 
+                       class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-xl transition">
+                        ← Previous
+                    </a>
+                {% else %}
+                    <span class="opacity-30 bg-gray-100 text-gray-400 px-4 py-2 rounded-xl cursor-not-allowed">← Previous</span>
+                {% endif %}
+
+                <span class="text-gray-500">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.price %}&price={{ request.GET.price }}{% endif %}{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.condition %}&condition={{ request.GET.condition }}{% endif %}{% if request.GET.verified %}&verified={{ request.GET.verified }}{% endif %}" 
+                       class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl transition">
+                        Next →
+                    </a>
+                {% else %}
+                    <span class="opacity-30 bg-gray-100 text-gray-400 px-4 py-2 rounded-xl cursor-not-allowed">Next →</span>
+                {% endif %}
+            </div>
+
+        {% else %}
+            <div class="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-300 max-w-xl mx-auto">
+                <p class="text-gray-500 text-sm">No listings found matching your filters.</p>
+                <div class="mt-4 flex justify-center gap-3">
+                    <a href="{% url 'listings:home' %}" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold px-4 py-2.5 rounded-xl text-xs sm:text-sm transition">Clear Filters</a>
+                    <a href="{% url 'listings:create_ad' %}" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2.5 rounded-xl text-xs sm:text-sm transition">Post an Ad Now</a>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+
+</div>
+
+<!-- Custom Filter Bottom Sheet Modal -->
+<div id="filter-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity">
+    <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden transform transition-transform animate-slide-up">
+        
+        <!-- Modal Header -->
+        <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-green-50/50">
+            <h3 id="modal-title" class="font-extrabold text-gray-900 text-base">Select Filter</h3>
+            <button type="button" onclick="closeFilterModal()" class="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 flex items-center justify-center font-bold text-sm transition">
+                ✕
+            </button>
+        </div>
+
+        <!-- Modal Options List -->
+        <div id="modal-options-list" class="max-h-[60vh] overflow-y-auto p-3 space-y-1.5 divide-y divide-gray-50">
+            <!-- Dynamically populated options -->
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Custom Mobile Filter Modal & Verified Toggle -->
+<script>
+    const filterData = {
+        category: [
+            { value: '', label: '📁 All Categories' },
+            {% for cat in categories %}
+            { value: '{{ cat.slug }}', label: '{{ cat.name|escapejs }}' },
+            {% endfor %}
+        ],
+        price: [
+            { value: '', label: '💰 Default Price Sort' },
+            { value: 'lowest', label: '📉 Lowest Price First' },
+            { value: 'highest', label: '📈 Highest Price First' }
+        ],
+        location: [
+            { value: '', label: '📍 All Locations' },
+            {% for loc in locations %}
+            { value: '{{ loc.pk }}', label: '{{ loc.name|escapejs }}' },
+            {% endfor %}
+        ],
+        condition: [
+            { value: '', label: '✨ All Conditions' },
+            { value: 'NEW', label: '🔥 Brand New' },
+            { value: 'FOREIGN_USED', label: '🚢 Foreign Used (Home Used)' },
+            { value: 'LOCAL_USED', label: '🔄 Locally Used' }
+        ]
+    };
+
+    function toggleVerifiedFilter() {
+        const verifiedInput = document.getElementById('input-verified');
+        verifiedInput.value = verifiedInput.value === '1' ? '' : '1';
+        document.getElementById('filter-form').submit();
+    }
+
+    function openFilterModal(filterType) {
+        const modal = document.getElementById('filter-modal');
+        const titleEl = document.getElementById('modal-title');
+        const listEl = document.getElementById('modal-options-list');
+        
+        titleEl.textContent = `Filter by ${filterType.charAt(0).toUpperCase() + filterType.slice(1)}`;
+        listEl.innerHTML = '';
+
+        const options = filterData[filterType] || [];
+        const currentValue = document.getElementById(`input-${filterType}`).value;
+
+        options.forEach(opt => {
+            const isSelected = opt.value === currentValue;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = `w-full text-left px-4 py-3 rounded-xl font-semibold text-sm transition flex items-center justify-between ${isSelected ? 'bg-green-600 text-white shadow-sm' : 'text-gray-800 hover:bg-green-50'}`;
+            btn.innerHTML = `<span>${opt.label}</span>${isSelected ? '<span class="text-xs font-bold">✓</span>' : ''}`;
+            
+            btn.onclick = () => {
+                document.getElementById(`input-${filterType}`).value = opt.value;
+                document.getElementById('filter-form').submit();
+            };
+
+            listEl.appendChild(btn);
+        });
+
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeFilterModal() {
+        const modal = document.getElementById('filter-modal');
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    document.getElementById('filter-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'filter-modal') {
+            closeFilterModal();
+        }
+    });
+</script>
+{% endblock %}
