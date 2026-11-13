@@ -65,15 +65,21 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+import dj_database_url
+import os
 
 # Database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
+DATABASES = {
+    'default': dj_database_url.config(
+        # Reads DATABASE_URL from your environment (.env or Render), 
+        # falling back to local SQLite if none is found.
+        default=os.environ.get('DATABASE_URL', 'sqlite:///db.sqlite3'),
+        conn_max_age=600,
+        ssl_require=True,  # Recommended for remote databases like Supabase
+    )
+}
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
